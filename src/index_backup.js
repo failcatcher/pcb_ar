@@ -1,6 +1,7 @@
 import '@/assets/styles/main.css';
 import jsQR from 'jsqr';
 import { getBoard, getModelPath, getPatternPath } from '@/utils/index';
+import * as dat from 'dat.gui';
 
 var video = document.createElement('video'),
   stream = null,
@@ -42,6 +43,12 @@ function tick() {
     }
   }
 
+  var ModelController = function () {
+    this.name = '';
+    this.showModel1 = false;
+    this.showModel2 = false;
+  };
+
   if (!boardCode) {
     requestAnimationFrame(tick);
   } else {
@@ -52,6 +59,12 @@ function tick() {
 
     let modelPath = getModelPath(board.id, board.levels[0].file),
       patternPath = getPatternPath(board.id);
+
+    var modelController = new ModelController();
+    var gui = new dat.GUI();
+    gui.add(modelController, 'name');
+    gui.add(modelController, 'this.showModel1');
+    gui.add(modelController, 'this.showModel2');
 
     document.body.innerHTML =
       `<a-scene embedded arjs>` +
