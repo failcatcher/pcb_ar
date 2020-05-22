@@ -1,7 +1,7 @@
-const path = require('path')
+const path = require('path');
 
 module.exports = {
-  entry: './src/index.js',
+  entry: './src/index_backup.js',
   devtool: 'inline-source-map',
   output: {
     filename: 'main.js',
@@ -45,4 +45,4 @@ module.exports = {
       }
     ]
   }
-}
+};
