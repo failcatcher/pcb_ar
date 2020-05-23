@@ -7,8 +7,10 @@ import { OBJLoader } from './utils/objloader';
 import { MTLLoader } from './utils/mtlloader';
 
 const setLevel = (levelName) => {
-  const sceneObj = scene.getObjectByName(currentLevel);
-  scene.remove(sceneObj);
+  if (!objects.find((level) => level.name == currentLevel).isBase) {
+    const sceneObj = scene.getObjectByName(currentLevel);
+    scene.remove(sceneObj);
+  }
 
   scene.add(objects.find((level) => level.name == levelName).obj);
 
@@ -34,6 +36,7 @@ const loadObject = (
       objects.push({
         boardId,
         name: level.name,
+        isBase: index == 0,
         obj
       });
 
