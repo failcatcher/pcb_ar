@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-  entry: './src/index_backup.js',
+  entry: './src/index.js',
   devtool: 'inline-source-map',
   output: {
     filename: 'main.js',
@@ -34,7 +34,7 @@ module.exports = {
           {
             loader: 'css-loader',
             options: {
-              modules: true
+              modules: false
             }
           }
         ]

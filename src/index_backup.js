@@ -52,27 +52,33 @@ function tick() {
   if (!boardCode) {
     requestAnimationFrame(tick);
   } else {
-    stopVideoStreaming();
-    document.body.removeChild(canvasElement);
-
     let board = getBoard(boardCode);
 
-    let modelPath = getModelPath(board.id, board.levels[0].file),
-      patternPath = getPatternPath(board.id);
+    if (board == undefined) {
+      requestAnimationFrame(tick);
+    } else {
+      stopVideoStreaming();
+      document.body.removeChild(canvasElement);
 
-    var modelController = new ModelController();
-    var gui = new dat.GUI();
-    gui.add(modelController, 'name');
-    gui.add(modelController, 'this.showModel1');
-    gui.add(modelController, 'this.showModel2');
+      let board = getBoard(boardCode);
 
-    document.body.innerHTML =
-      `<a-scene embedded arjs>` +
-      `<a-marker type="pattern" url="${patternPath}">` +
-      `<a-entity obj-model="obj: url(${modelPath.model}); mtl: url(${modelPath.material})"></a-entity>` +
-      `</a-marker>` +
-      `<a-entity camera></a-entity>` +
-      `</a-scene>`;
+      let modelPath = getModelPath(board.id, board.levels[0].file),
+        patternPath = getPatternPath(board.id);
+
+      var modelController = new ModelController();
+      var gui = new dat.GUI();
+      gui.add(modelController, 'name');
+      gui.add(modelController, 'showModel1');
+      gui.add(modelController, 'showModel2');
+
+      document.body.innerHTML =
+        `<a-scene embedded arjs>` +
+        `<a-marker type="pattern" url="${patternPath}">` +
+        `<a-entity obj-model="obj: url(${modelPath.model}); mtl: url(${modelPath.material})"></a-entity>` +
+        `</a-marker>` +
+        `<a-entity camera></a-entity>` +
+        `</a-scene>`;
+    }
   }
 }
 

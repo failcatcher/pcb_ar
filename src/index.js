@@ -1,57 +1,122 @@
-//////////////////////////////////////////////////////////////////////////////////
-//		Init
-//////////////////////////////////////////////////////////////////////////////////
+import '@/assets/styles/main.css';
+import jsQR from 'jsqr';
+import { getBoard, getModelPath, getPatternPath } from '@/utils/index';
+import Message from '@/utils/message';
+import * as dat from 'dat.gui';
+import { OBJLoader } from './utils/objloader';
+import { MTLLoader } from './utils/mtlloader';
 
-// init renderer
+const setLevel = (levelName) => {
+  const sceneObj = scene.getObjectByName(currentLevel);
+  scene.remove(sceneObj);
+
+  scene.add(objects.find((level) => level.name == levelName).obj);
+
+  currentLevel = levelName;
+};
+
+const loadObject = (
+  boardId,
+  level,
+  { material, model, scale, position },
+  index
+) => {
+  new MTLLoader(manager).load(material, function (materials) {
+    materials.preload();
+
+    new OBJLoader(manager).setMaterials(materials).load(model, function (obj) {
+      decreaseRemainedAmount(boardId);
+
+      obj.scale.set(...scale);
+      obj.position.set(...position);
+      obj.name = level.name;
+
+      objects.push({
+        boardId,
+        name: level.name,
+        obj
+      });
+
+      if (index == 0) {
+        currentLevel = level.name;
+        scene.add(obj);
+      }
+    });
+  });
+};
+
+function decreaseRemainedAmount(boardId) {
+  remainedObjects--;
+  if (remainedObjects == 0) {
+    message.hide();
+    initLevelController(boardId);
+  }
+}
+
+function initLevelController(boardId) {
+  modelController.level = '';
+
+  const board = boards.find((board) => board.id == boardId);
+
+  let levelController = gui.add(
+    modelController,
+    'level',
+    board.levels.map((level) => level.name)
+  );
+
+  levelController.setValue(board.levels[0].name).onChange(setLevel);
+}
+
+const message = new Message();
+
+var boards = [],
+  objects = [],
+  remainedObjects = 0;
+
+var video, canvas, context;
+
+var modelController, gui, currentLevel;
+
 var renderer = new THREE.WebGLRenderer({
+  preserveDrawingBuffer: true,
   antialias: true,
   alpha: true
 });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(new THREE.Color('lightgrey'), 0);
-renderer.setSize(640, 480);
 renderer.domElement.style.position = 'absolute';
 renderer.domElement.style.top = '0px';
 renderer.domElement.style.left = '0px';
 document.body.appendChild(renderer.domElement);
 
-// array of functions for the rendering loop
+message.show('Наведіть камеру на QR код');
+
 var onRenderFcts = [];
 
-// init scene and camera
 var scene = new THREE.Scene();
 
-//////////////////////////////////////////////////////////////////////////////////
-//		Initialize a basic camera
-//////////////////////////////////////////////////////////////////////////////////
-
-// Create a camera
 var camera = new THREE.Camera();
 scene.add(camera);
 
-////////////////////////////////////////////////////////////////////////////////
-//          handle arToolkitSource
-////////////////////////////////////////////////////////////////////////////////
+var light = new THREE.AmbientLight(0xffffff, 0.8);
+scene.add(light);
 
 var arToolkitSource = new THREEx.ArToolkitSource({
-  // to read from the webcam
   sourceType: 'webcam'
-
-  // // to read from an image
-  // sourceType : 'image',
-  // sourceUrl : THREEx.ArToolkitContext.baseURL + '../data/images/img.jpg',
-
-  // to read from a video
-  // sourceType : 'video',
-  // sourceUrl : THREEx.ArToolkitContext.baseURL + '../data/videos/headtracking.mp4',
 });
 
 arToolkitSource.init(function onReady() {
   setTimeout(() => {
     onResize();
+
+    video = document.querySelector('video');
+
+    canvas = document.createElement('canvas');
+    context = canvas.getContext('2d');
   }, 2000);
 });
 
-// handle resize
 window.addEventListener('resize', function () {
   onResize();
 });
@@ -63,91 +128,105 @@ function onResize() {
     arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas);
   }
 }
-////////////////////////////////////////////////////////////////////////////////
-//          initialize arToolkitContext
-////////////////////////////////////////////////////////////////////////////////
 
-// create atToolkitContext
 var arToolkitContext = new THREEx.ArToolkitContext({
-  cameraParametersUrl: './data/camera_para.dat',
   detectionMode: 'mono'
 });
-// initialize it
+
 arToolkitContext.init(function onCompleted() {
-  // copy projection matrix to camera
   camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix());
 });
 
-// update artoolkit on every frame
 onRenderFcts.push(function () {
   if (arToolkitSource.ready === false) return;
 
   arToolkitContext.update(arToolkitSource.domElement);
 
-  // update scene.visible if the marker is seen
   scene.visible = camera.visible;
 });
 
-////////////////////////////////////////////////////////////////////////////////
-//          Create a ArMarkerControls
-////////////////////////////////////////////////////////////////////////////////
-
-// init controls for camera
-var markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
-  type: 'pattern',
-  patternUrl: './data/patt.hiro',
-  // patternUrl : THREEx.ArToolkitContext.baseURL + '../data/data/patt.kanji',
-  // as we controls the camera, set changeMatrixMode: 'cameraTransformMatrix'
-  changeMatrixMode: 'cameraTransformMatrix'
-});
-// as we do changeMatrixMode: 'cameraTransformMatrix', start with invisible scene
 scene.visible = false;
 
-//////////////////////////////////////////////////////////////////////////////////
-//		add an object in the scene
-//////////////////////////////////////////////////////////////////////////////////
+const manager = new THREE.LoadingManager();
 
-// add a torus knot
-var geometry = new THREE.CubeGeometry(1, 1, 1);
-var material = new THREE.MeshNormalMaterial({
-  transparent: true,
-  opacity: 0.5,
-  side: THREE.DoubleSide
-});
-var mesh = new THREE.Mesh(geometry, material);
-mesh.position.y = geometry.parameters.height / 2;
-scene.add(mesh);
-
-var geometry = new THREE.TorusKnotGeometry(0.3, 0.1, 64, 16);
-var material = new THREE.MeshNormalMaterial();
-var mesh = new THREE.Mesh(geometry, material);
-mesh.position.y = 0.5;
-scene.add(mesh);
-
-onRenderFcts.push(function (delta) {
-  mesh.rotation.x += Math.PI * delta;
-});
-
-//////////////////////////////////////////////////////////////////////////////////
-//		render the whole thing on the page
-//////////////////////////////////////////////////////////////////////////////////
-
-// render the scene
 onRenderFcts.push(function () {
   renderer.render(scene, camera);
 });
 
-// run the rendering loop
+onRenderFcts.push(function () {
+  if (video && boards.length == 0) {
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      canvas.hidden = false;
+
+      canvas.height = video.videoHeight;
+      canvas.width = video.videoWidth;
+
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+      var code = jsQR(imageData.data, imageData.width, imageData.height, {
+        inversionAttempts: 'dontInvert'
+      });
+
+      if (code && code.data) {
+        if (boards.find((board) => board.id == code.data) == undefined) {
+          initBoard(code.data);
+        }
+      }
+    }
+  }
+});
+
 var lastTimeMsec = null;
 requestAnimationFrame(function animate(nowMsec) {
-  // keep looping
   requestAnimationFrame(animate);
-  // measure time
   lastTimeMsec = lastTimeMsec || nowMsec - 1000 / 60;
   var deltaMsec = Math.min(200, nowMsec - lastTimeMsec);
   lastTimeMsec = nowMsec;
-  // call each update function
+
   onRenderFcts.forEach(function (onRenderFct) {
     onRenderFct(deltaMsec / 1000, nowMsec / 1000);
   });
 });
+
+function initBoard(id) {
+  message.hide();
+
+  const board = getBoard(id);
+  boards.push(board);
+
+  console.log(`Found board ${id}`);
+
+  if (boards.length == 1) {
+    modelController = {
+      name: board.name
+    };
+
+    gui = new dat.GUI();
+    gui.add(modelController, 'name');
+
+    let modelParams = {
+      scale: board.scale || [1, 1, 1],
+      position: board.position || [0, 0, 0]
+    };
+
+    remainedObjects = board.levels.length;
+
+    message.show('Завантаження моделей');
+
+    board.levels.map((level, index) => {
+      let modelPath = getModelPath(board.id, level.file);
+      let params = { ...modelPath, ...modelParams };
+      loadObject(id, level, params, index);
+    });
+  }
+
+  let patternPath = getPatternPath(board.id);
+
+  var markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
+    type: 'pattern',
+    // patternUrl: patternPath,
+    patternUrl: 'patterns/hiro.patt',
+    changeMatrixMode: 'cameraTransformMatrix'
+  });
+}

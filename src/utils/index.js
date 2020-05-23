@@ -13,5 +13,6 @@ export function getModelPath(boardId, levelFile) {
 }
 
 export function getPatternPath(boardId) {
-  return `${PATTERNS_DIR}/model${boardId}.patt`;
+  const { pattern } = getBoard(boardId);
+  return `${PATTERNS_DIR}/${pattern}.patt`;
 }
