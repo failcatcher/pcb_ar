@@ -6,7 +6,7 @@ import * as dat from 'dat.gui';
 import { OBJLoader } from './utils/objloader';
 import { MTLLoader } from './utils/mtlloader';
 
-const setLevel = (levelName) => {
+const setTrack = (levelName) => {
   if (!objects.find((level) => level.name == currentLevel).isBase) {
     const sceneObj = scene.getObjectByName(currentLevel);
     scene.remove(sceneObj);
@@ -52,22 +52,22 @@ function decreaseRemainedAmount(boardId) {
   remainedObjects--;
   if (remainedObjects == 0) {
     message.hide();
-    initLevelController(boardId);
+    initTrackController(boardId);
   }
 }
 
-function initLevelController(boardId) {
-  modelController.level = '';
+function initTrackController(boardId) {
+  modelController.track = '';
 
   const board = boards.find((board) => board.id == boardId);
 
-  let levelController = gui.add(
+  let trackController = gui.add(
     modelController,
-    'level',
+    'track',
     board.levels.map((level) => level.name)
   );
 
-  levelController.setValue(board.levels[0].name).onChange(setLevel);
+  trackController.setValue(board.levels[0].name).onChange(setTrack);
 }
 
 const message = new Message();
