@@ -28,7 +28,7 @@ const loadObject = (
   { material, model, scale, position },
   index
 ) => {
-  MTLLoader(manager).load(getAssetPath(material), function (materials) {
+  new MTLLoader(manager).load(getAssetPath(material), function (materials) {
     materials.preload();
 
     new OBJLoader(manager)
