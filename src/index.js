@@ -1,6 +1,11 @@
 import '@/assets/styles/main.css';
 import jsQR from 'jsqr';
-import { getBoard, getModelPath, getPatternPath } from '@/utils/index';
+import {
+  getBoard,
+  getModelPath,
+  getPatternPath,
+  getAssetPath
+} from '@/utils/index';
 import Message from '@/utils/message';
 import * as dat from 'dat.gui';
 import { OBJLoader } from './utils/objloader';
@@ -23,28 +28,30 @@ const loadObject = (
   { material, model, scale, position },
   index
 ) => {
-  new MTLLoader(manager).load(material, function (materials) {
+  MTLLoader(manager).load(getAssetPath(material), function (materials) {
     materials.preload();
 
-    new OBJLoader(manager).setMaterials(materials).load(model, function (obj) {
-      decreaseRemainedAmount(boardId);
+    new OBJLoader(manager)
+      .setMaterials(materials)
+      .load(getAssetPath(model), function (obj) {
+        decreaseRemainedAmount(boardId);
 
-      obj.scale.set(...scale);
-      obj.position.set(...position);
-      obj.name = level.name;
+        obj.scale.set(...scale);
+        obj.position.set(...position);
+        obj.name = level.name;
 
-      objects.push({
-        boardId,
-        name: level.name,
-        isBase: index == 0,
-        obj
+        objects.push({
+          boardId,
+          name: level.name,
+          isBase: index == 0,
+          obj
+        });
+
+        if (index == 0) {
+          currentLevel = level.name;
+          scene.add(obj);
+        }
       });
-
-      if (index == 0) {
-        currentLevel = level.name;
-        scene.add(obj);
-      }
-    });
   });
 };
 

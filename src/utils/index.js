@@ -16,3 +16,7 @@ export function getPatternPath(boardId) {
   const { pattern } = getBoard(boardId);
   return `${PATTERNS_DIR}/${pattern}.patt`;
 }
+
+export function getAssetPath(path) {
+  return `${BASE_DIR}${path}`;
+}
