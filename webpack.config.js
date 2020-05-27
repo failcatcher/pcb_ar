@@ -49,7 +49,7 @@ module.exports = (env) => {
     },
     plugins: [
       new webpack.DefinePlugin({
-        BASE_DIR: JSON.stringify(env.NODE_ENV == 'local' ? '' : '/dist')
+        BASE_DIR: JSON.stringify(env.NODE_ENV == 'local' ? '' : '/pcb_ar/dist')
       })
     ]
   };
