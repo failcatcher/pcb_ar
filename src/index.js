@@ -109,7 +109,7 @@ var scene = new THREE.Scene();
 var camera = new THREE.Camera();
 scene.add(camera);
 
-var light = new THREE.AmbientLight(0xc5ff29, 2.8);
+var light = new THREE.AmbientLight(0xffffff, 2.8);
 scene.add(light);
 
 var arToolkitSource = new THREEx.ArToolkitSource({
