@@ -88,7 +88,6 @@ var video, canvas, context;
 var modelController, gui, currentLevel;
 
 var renderer = new THREE.WebGLRenderer({
-  physicallyCorrectLights: true,
   preserveDrawingBuffer: true,
   antialias: true,
   alpha: true,
@@ -113,8 +112,8 @@ var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(45, 2, 0.01, 100000);
 scene.add(camera);
 
-var light = new THREE.PointLight(0xffffff, 2.14);
-light.position.set(0, 21, 9);
+var light = new THREE.PointLight(0xffffff, 1.44);
+light.position.set(0, 15, 7);
 
 scene.add(light);
 
