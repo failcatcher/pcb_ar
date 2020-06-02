@@ -88,9 +88,13 @@ var video, canvas, context;
 var modelController, gui, currentLevel;
 
 var renderer = new THREE.WebGLRenderer({
+  physicallyCorrectLights: true,
   preserveDrawingBuffer: true,
   antialias: true,
-  alpha: true
+  alpha: true,
+  colorManagment: true,
+  logarithmicDepthBuffer: true,
+  sortObjects: true
 });
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -106,10 +110,12 @@ var onRenderFcts = [];
 
 var scene = new THREE.Scene();
 
-var camera = new THREE.Camera();
+var camera = new THREE.PerspectiveCamera(45, 2, 0.01, 100000);
 scene.add(camera);
 
-var light = new THREE.AmbientLight(0xffffff, 2.8);
+var light = new THREE.PointLight(0xffffff, 2.14);
+light.position.set(0, 21, 9);
+
 scene.add(light);
 
 var arToolkitSource = new THREEx.ArToolkitSource({
