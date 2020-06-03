@@ -242,6 +242,10 @@ function initBoard(id) {
     type: 'pattern',
     // patternUrl: patternPath,
     patternUrl: 'patterns/hiro.patt',
-    changeMatrixMode: 'cameraTransformMatrix'
+    changeMatrixMode: 'cameraTransformMatrix',
+    smooth: true,
+    smoothcount: 4,
+    smoothTolerance: 0.01,
+    smoothThreshold: 2
   });
 }
