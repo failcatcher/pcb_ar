@@ -14,8 +14,8 @@ export default [
     id: 'model2_pcb',
     name: 'Foxconn K8S755M-6ELRS',
     // pattern: 'model2_pcb',
-    scale: [16, 14.1, 17.5],
-    position: [-1.6, -1.5, 0.2],
+    scale: [16, 14.1, 18],
+    position: [-1.6, -1.5, -0.2],
     levels: [
       {
         name: 'Foxconn K8S755M-6ELRS',
