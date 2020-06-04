@@ -12,14 +12,24 @@ import { OBJLoader } from './utils/objloader';
 import { MTLLoader } from './utils/mtlloader';
 
 const setTrack = (levelName) => {
-  if (!objects.find((level) => level.name == currentLevel).isBase) {
-    const sceneObj = scene.getObjectByName(currentLevel);
-    scene.remove(sceneObj);
+  const sceneObj = objects.find((level) => level.name == currentLevel);
+  if (sceneObj !== undefined) {
+    if (!sceneObj.isBase) {
+      const sceneObj = scene.getObjectByName(currentLevel);
+      if (sceneObj) {
+        scene.remove(sceneObj);
+      }
+    }
   }
 
-  scene.add(objects.find((level) => level.name == levelName).obj);
+  const nextSceneObj = objects.find((level) => level.name == levelName);
 
-  currentLevel = levelName;
+  if (nextSceneObj !== undefined) {
+    scene.add(nextSceneObj.obj);
+    currentLevel = levelName;
+  } else {
+    currentLevel = '';
+  }
 };
 
 const loadObject = (
@@ -68,13 +78,17 @@ function initTrackController(boardId) {
 
   const board = boards.find((board) => board.id == boardId);
 
+  const placeholderText = 'Select track';
+
   let trackController = gui.add(
     modelController,
     'track',
-    board.levels.map((level) => level.name)
+    board.levels.map((level, index) =>
+      index == 0 ? placeholderText : level.name
+    )
   );
 
-  trackController.setValue(board.levels[0].name).onChange(setTrack);
+  trackController.setValue(placeholderText).onChange(setTrack);
 }
 
 const message = new Message();

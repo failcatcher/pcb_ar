@@ -22,11 +22,11 @@ export default [
         file: 'model2_pcb'
       },
       {
-        name: 'South_bridge-Sata4',
+        name: 'TR121-(Bridge-Sata4)',
         file: 'model2_track1'
       },
       {
-        name: 'Memory-Processor',
+        name: 'TR243-(Mem-Proc)',
         file: 'model2_track2'
       }
     ]
